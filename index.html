@@ -4,48 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Skeleton Viewer</title>
-   <script type="module">
-  import * as THREE from './js/three.module.js';
-  import { GLTFLoader } from './js/GLTFLoader.js';
 
-  let scene, camera, renderer;
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js';
+        import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
 
-  function init() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    const loader = new GLTFLoader();
-    loader.load('./models/skeleton.gltf', function (gltf) {
-      scene.add(gltf.scene);
-      animate();
-    });
-
-    camera.position.z = 5;
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-  }
-
-  init();
-</script>
-
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-        #info { position: absolute; top: 10px; left: 10px; color: white; font-size: 18px; }
-    </style>
-</head>
-<body>
-    <div id="info">Click on a bone to see its name</div>
-    <script>
         let scene, camera, renderer, raycaster, mouse;
         let selectedBone = null;
-        
+
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -58,33 +24,35 @@
             const light = new THREE.AmbientLight(0xffffff, 1);
             scene.add(light);
 
-           const loader = new THREE.GLTFLoader();
-loader.load('models/skeleton.gltf', function(gltf) {
-    scene.add(gltf.scene);
-}, undefined, function(error) {
-    console.error('Error loading skeleton:', error);
-});
+            const loader = new GLTFLoader();
+            loader.load('./models/skeleton.gltf', function (gltf) {
+                scene.add(gltf.scene);
+            }, undefined, function (error) {
+                console.error('Error loading skeleton:', error);
+            });
 
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
 
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('click', onMouseClick);
+
+            animate();
         }
-        
+
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
-        
+
         function onMouseClick(event) {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            
+
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(scene.children, true);
-            
+
             if (intersects.length > 0) {
                 if (selectedBone) {
                     selectedBone.material.emissive.setHex(0x000000);
@@ -94,14 +62,22 @@ loader.load('models/skeleton.gltf', function(gltf) {
                 document.getElementById('info').innerText = `Selected Bone: ${selectedBone.name}`;
             }
         }
-        
+
         function animate() {
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
-        
+
         init();
-        animate();
     </script>
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+        #info { position: absolute; top: 10px; left: 10px; color: white; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div id="info">Click on a bone to see its name</div>
 </body>
 </html>
